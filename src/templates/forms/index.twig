@@ -1,0 +1,70 @@
+{% extends "_layouts/cp" %}
+{% set title = "Forms"|t('chatflow') %}
+{% set selectedSubnavItem = 'forms' %}
+
+{% block actionButton %}
+    <a href="{{ url('chatflow/forms/new') }}" class="btn submit add icon">{{ "New form"|t('chatflow') }}</a>
+{% endblock %}
+
+{% block content %}
+    {% if forms|length %}
+        <div class="tableview">
+            <table class="data fullwidth">
+                <thead>
+                    <tr>
+                        <th>{{ "Name"|t('chatflow') }}</th>
+                        <th>{{ "Handle"|t('chatflow') }}</th>
+                        <th>{{ "Questions"|t('chatflow') }}</th>
+                        <th>{{ "Submissions"|t('chatflow') }}</th>
+                        <th class="thin"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for form in forms %}
+                        <tr data-id="{{ form.id }}" data-name="{{ form.name }}">
+                            <td>
+                                <a href="{{ url('chatflow/forms/' ~ form.id) }}">{{ form.name }}</a>
+                            </td>
+                            <td>
+                                <code>{{ form.handle }}</code>
+                            </td>
+                            <td>
+                                {{ form.questions|length }}
+                            </td>
+                            <td>
+                                <a href="{{ url('chatflow/submissions', {formId: form.id}) }}">
+                                    View submissions
+                                </a>
+                            </td>
+                            <td class="thin">
+                                <a class="delete icon" title="{{ 'Delete'|t('app') }}" role="button"></a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>{{ "No forms exist yet."|t('chatflow') }}</p>
+    {% endif %}
+{% endblock %}
+
+{% js %}
+    $(document).on('click', '.delete', function(e) {
+        e.preventDefault();
+        var $row = $(this).closest('tr');
+        var id = $row.data('id');
+        var name = $row.data('name');
+
+        if (confirm('Are you sure you want to delete "' + name + '"?')) {
+            Craft.sendActionRequest('POST', 'chatflow/forms/delete', {
+                data: {id: id}
+            }).then(function(response) {
+                if (response.data.success) {
+                    $row.remove();
+                    Craft.cp.displayNotice('Form deleted.');
+                }
+            });
+        }
+    });
+{% endjs %}

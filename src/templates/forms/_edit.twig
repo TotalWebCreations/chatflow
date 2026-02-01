@@ -1,0 +1,331 @@
+{% extends "_layouts/cp" %}
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("totalwebcreations\\chatflow\\assetbundles\\FormBuilderAsset") %}
+
+{% set title = isNew ? "New Form"|t("chatflow") : form.name %}
+{% set fullPageForm = true %}
+
+{% set crumbs = [
+    { label: "Forms"|t('chatflow'), url: url('chatflow/forms') }
+] %}
+
+{# Add site selector as first breadcrumb if multiple sites exist #}
+{% if sites|length > 1 %}
+    {% set selectedSiteId = currentSiteId ?? craft.app.sites.currentSite.id %}
+    {% set selectedSite = craft.app.sites.getSiteById(selectedSiteId) %}
+
+    {% set siteMenuItems = [] %}
+    {% for site in sites %}
+        {% set item = {
+            label: site.name|t('site'),
+            url: isNew ? url('chatflow/forms/new', {site: site.handle}) : url('chatflow/forms/' ~ form.id, {site: site.handle})
+        } %}
+        {% if site.id == selectedSiteId %}
+            {% set item = item|merge({icon: 'check'}) %}
+        {% endif %}
+        {% set siteMenuItems = siteMenuItems|merge([item]) %}
+    {% endfor %}
+
+    {% set crumbs = [{
+        icon: 'world',
+        label: selectedSite.name|t('site'),
+        menu: {
+            items: siteMenuItems
+        }
+    }]|merge(crumbs) %}
+{% endif %}
+
+{% set tabs = {
+    general: { label: "General"|t("chatflow"), url: '#chatflow-general' },
+    questions: { label: "Questions"|t("chatflow"), url: '#chatflow-questions' },
+    notifications: { label: "Notifications"|t("chatflow"), url: '#chatflow-notifications' }
+} %}
+
+{% block actionButton %}
+    <div class="btngroup">
+        <input type="submit" class="btn submit" value="{{ "Save"|t("app") }}">
+    </div>
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="chatflow/forms/save">
+    {% if not isNew %}
+        <input type="hidden" name="formId" value="{{ form.id }}">
+    {% endif %}
+    <input type="hidden" name="siteId" value="{{ currentSiteId ?? craft.app.sites.currentSite.id }}">
+    {{ redirectInput("chatflow/forms") }}
+
+    <div id="chatflow-general">
+        {{ forms.textField({
+            label: "Name"|t("chatflow"),
+            instructions: "What this form will be called in the control panel"|t("chatflow"),
+            id: "name",
+            name: "name",
+            value: form.name,
+            errors: form.getErrors("name"),
+            autofocus: true,
+            required: true
+        }) }}
+
+        {{ forms.textField({
+            label: "Handle"|t("chatflow"),
+            instructions: "How you will refer to this form in your templates"|t("chatflow"),
+            id: "handle",
+            class: "code",
+            name: "handle",
+            value: form.handle,
+            errors: form.getErrors("handle"),
+            required: true
+        }) }}
+
+        {{ forms.textareaField({
+            label: "Success Message"|t("chatflow"),
+            instructions: "Message shown to the user after successful submission"|t("chatflow"),
+            id: "successMessage",
+            name: "successMessage",
+            value: form.successMessage,
+            rows: 2
+        }) }}
+    </div>
+
+    <div id="chatflow-questions" class="hidden">
+        <p class="light">{{ "Add and configure the questions that will be asked in your conversational form"|t("chatflow") }}</p>
+
+        <div id="questions-builder">
+            <div id="questions-list">
+                {% for question in form.questions %}
+                    <div class="question-item matrixblock" data-index="{{ loop.index0 }}">
+                        <div class="titlebar">
+                            <div class="preview"><span class="title">{{ question.questionText }}</span></div>
+                            <div class="actions">
+                                <a class="move icon" title="Reorder"></a>
+                                <a class="settings icon question-toggle" title="Edit"></a>
+                                <a class="delete icon" title="Delete"></a>
+                            </div>
+                        </div>
+                        <div class="question-fields" style="display: none;">
+                            <input type="hidden" name="questions[{{ loop.index0 }}][id]" value="{{ question.id }}">
+
+                            <div class="field">
+                                <div class="heading"><label>Question Text</label></div>
+                                <div class="input">
+                                    <input type="text" name="questions[{{ loop.index0 }}][questionText]" class="text fullwidth" value="{{ question.questionText }}" required>
+                                </div>
+                            </div>
+
+                            {{ forms.selectField({
+                                label: "Field Type"|t("chatflow"),
+                                name: "questions[" ~ loop.index0 ~ "][fieldType]",
+                                value: question.fieldType,
+                                class: 'field-type-select',
+                                options: {
+                                    'text': 'Short Text'|t("chatflow"),
+                                    'email': 'Email'|t("chatflow"),
+                                    'tel': 'Phone'|t("chatflow"),
+                                    'textarea': 'Long Text'|t("chatflow"),
+                                    'buttons': 'Multiple Choice'|t("chatflow"),
+                                    'date': 'Date'|t("chatflow")
+                                }
+                            }) }}
+
+                            <div class="field">
+                                <div class="heading"><label>Field Name</label></div>
+                                <div class="input">
+                                    <input type="text" name="questions[{{ loop.index0 }}][fieldName]" class="text code fullwidth" value="{{ question.fieldName }}" required>
+                                </div>
+                            </div>
+
+                            <div class="field">
+                                <div class="heading"><label>Placeholder</label></div>
+                                <div class="input">
+                                    <input type="text" name="questions[{{ loop.index0 }}][placeholder]" class="text fullwidth" value="{{ question.placeholder }}">
+                                </div>
+                            </div>
+
+                            {{ forms.lightswitchField({
+                                label: "Required"|t("chatflow"),
+                                name: "questions[" ~ loop.index0 ~ "][required]",
+                                on: question.required
+                            }) }}
+
+                            <div class="field">
+                                <div class="heading"><label>Skip Button Text</label></div>
+                                <div class="input">
+                                    <input type="text" name="questions[{{ loop.index0 }}][skipText]" class="text fullwidth" placeholder="e.g., Skip this question" value="{{ question.skipText }}">
+                                </div>
+                            </div>
+
+                            <div class="field options-field" style="display: {{ question.fieldType == 'buttons' ? 'block' : 'none' }};">
+                                <div class="heading"><label>Options (one per line)</label></div>
+                                <div class="input">
+                                    <textarea name="questions[{{ loop.index0 }}][options]" class="text fullwidth" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3">{{ question.options is iterable ? question.options|join('\n') : question.options }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="add-question" class="btn add icon">{{ "Add Question"|t("chatflow") }}</button>
+        </div>
+
+        <input type="hidden" id="question-index-data" value="{{ form.questions|length }}">
+    </div>
+
+    <div id="chatflow-notifications" class="hidden">
+        {{ forms.lightswitchField({
+            label: "Enable Email Notifications"|t("chatflow"),
+            instructions: "Send email notifications for submissions to this form"|t("chatflow"),
+            id: "enableNotifications",
+            name: "enableNotifications",
+            on: form.enableNotifications,
+            toggle: 'email-notification-settings'
+        }) }}
+
+        <div id="email-notification-settings" class="{% if not form.enableNotifications %}hidden{% endif %}">
+            {{ forms.textareaField({
+                label: "Notification Emails"|t("chatflow"),
+                instructions: "Email addresses (one per line or comma-separated). Leave empty to use plugin default."|t("chatflow"),
+                id: "notificationEmails",
+                name: "notificationEmails",
+                value: form.notificationEmails,
+                rows: 3,
+                placeholder: "team@example.com\nmanager@example.com"
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
+            label: "Enable Slack Notifications"|t("chatflow"),
+            instructions: "Send notifications to a Slack channel"|t("chatflow"),
+            id: "enableSlack",
+            name: "enableSlack",
+            on: form.enableSlack,
+            toggle: 'slack-notification-settings'
+        }) }}
+
+        <div id="slack-notification-settings" class="{% if not form.enableSlack %}hidden{% endif %}">
+            {{ forms.textField({
+                label: "Slack Webhook URL"|t("chatflow"),
+                instructions: "Get your webhook URL from Slack Incoming Webhooks (leave empty to use plugin default)"|t("chatflow"),
+                id: "slackWebhookUrl",
+                name: "slackWebhookUrl",
+                type: "url",
+                value: form.slackWebhookUrl,
+                placeholder: "https://hooks.slack.com/services/..."
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
+            label: "Enable Microsoft Teams Notifications"|t("chatflow"),
+            instructions: "Send notifications to a Microsoft Teams channel"|t("chatflow"),
+            id: "enableTeams",
+            name: "enableTeams",
+            on: form.enableTeams,
+            toggle: 'teams-notification-settings'
+        }) }}
+
+        <div id="teams-notification-settings" class="{% if not form.enableTeams %}hidden{% endif %}">
+            {{ forms.textField({
+                label: "Teams Webhook URL"|t("chatflow"),
+                instructions: "Get your webhook URL from Teams Incoming Webhook connector (leave empty to use plugin default)"|t("chatflow"),
+                id: "teamsWebhookUrl",
+                name: "teamsWebhookUrl",
+                type: "url",
+                value: form.teamsWebhookUrl,
+                placeholder: "https://outlook.office.com/webhook/..."
+            }) }}
+        </div>
+
+        {{ forms.lightswitchField({
+            label: "Enable Custom Webhook"|t("chatflow"),
+            instructions: "Send submission data to a custom webhook URL"|t("chatflow"),
+            id: "enableWebhook",
+            name: "enableWebhook",
+            on: form.enableWebhook,
+            toggle: 'webhook-notification-settings'
+        }) }}
+
+        <div id="webhook-notification-settings" class="{% if not form.enableWebhook %}hidden{% endif %}">
+            {{ forms.textField({
+                label: "Webhook URL"|t("chatflow"),
+                instructions: "POST submissions to this URL (leave empty to use plugin default)"|t("chatflow"),
+                id: "webhookUrl",
+                name: "webhookUrl",
+                type: "url",
+                value: form.webhookUrl,
+                placeholder: "https://hooks.zapier.com/..."
+            }) }}
+        </div>
+    </div>
+{% endblock %}
+
+{% js %}
+    // Auto-generate handle from name
+    (function() {
+        var $nameField = $('#name');
+        var $handleField = $('#handle');
+        var handleModified = {{ form.handle ? 'true' : 'false' }};
+
+        $nameField.on('input', function() {
+            if (!handleModified) {
+                var handle = $(this).val()
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-|-$/g, '');
+                $handleField.val(handle);
+            }
+        });
+
+        $handleField.on('input', function() {
+            handleModified = true;
+        });
+    })();
+{% endjs %}
+
+{% css %}
+.question-item {
+    margin-bottom: 10px;
+    border: 1px solid #e3e5e8;
+    border-radius: 4px;
+}
+
+.question-item .titlebar {
+    padding: 10px 14px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e3e5e8;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.question-item .preview {
+    flex: 1;
+}
+
+.question-item .title {
+    font-weight: 600;
+}
+
+.question-item .actions {
+    display: flex;
+    gap: 5px;
+}
+
+.question-item .question-fields {
+    padding: 14px;
+}
+
+.question-item .field {
+    margin-bottom: 14px;
+}
+
+#questions-builder {
+    margin-top: 20px;
+}
+
+#add-question {
+    margin-top: 10px;
+}
+{% endcss %}

@@ -1,0 +1,67 @@
+{% extends "_layouts/cp" %}
+{% set title = "Submission #" ~ submission.id %}
+
+{% set crumbs = [
+    { label: "Submissions"|t('chatflow'), url: url('chatflow/submissions') }
+] %}
+
+{% block content %}
+    <div class="readable">
+        <div class="meta">
+            <div class="data">
+                <h5 class="heading">{{ 'Form'|t('chatflow') }}</h5>
+                <div class="value">{{ form.name }}</div>
+            </div>
+            <div class="data">
+                <h5 class="heading">{{ 'Submitted'|t('chatflow') }}</h5>
+                <div class="value">{{ submission.dateCreated|date('F j, Y \\a\\t g:i A') }}</div>
+            </div>
+            {% if submission.ipAddress %}
+                <div class="data">
+                    <h5 class="heading">{{ 'IP Address'|t('chatflow') }}</h5>
+                    <div class="value"><code>{{ submission.ipAddress }}</code></div>
+                </div>
+            {% endif %}
+            {% if submission.userAgent %}
+                <div class="data">
+                    <h5 class="heading">{{ 'User Agent'|t('chatflow') }}</h5>
+                    <div class="value"><code>{{ submission.userAgent }}</code></div>
+                </div>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <h2>{{ 'Answers'|t('chatflow') }}</h2>
+
+        <table class="data fullwidth">
+            <thead>
+                <tr>
+                    <th style="width: 40%;">{{ 'Question'|t('chatflow') }}</th>
+                    <th>{{ 'Answer'|t('chatflow') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in form.questions %}
+                    {% set value = submission.data[question.fieldName] ?? null %}
+                    <tr>
+                        <td><strong>{{ question.questionText }}</strong></td>
+                        <td>
+                            {% if value %}
+                                {{ value }}
+                            {% else %}
+                                <span class="light">{{ '(not answered)'|t('chatflow') }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        <div class="buttons">
+            <a href="{{ url('chatflow/submissions', {formId: form.id}) }}" class="btn">{{ 'Back to submissions'|t('chatflow') }}</a>
+        </div>
+    </div>
+{% endblock %}

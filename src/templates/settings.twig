@@ -1,0 +1,162 @@
+{% import "_includes/forms" as forms %}
+
+<h2>{{ "Appearance"|t('chatflow') }}</h2>
+
+{{ forms.selectField({
+    label: 'Avatar Type'|t('chatflow'),
+    instructions: 'Choose how the chat avatar should appear'|t('chatflow'),
+    id: 'avatarType',
+    name: 'avatarType',
+    value: settings.avatarType,
+    options: [
+        { label: 'Solid Color + Initials'|t('chatflow'), value: 'solid' },
+        { label: 'Gradient + Initials'|t('chatflow'), value: 'gradient' },
+        { label: 'Custom Image'|t('chatflow'), value: 'image' }
+    ],
+    toggle: true,
+    targetPrefix: 'avatar-type-'
+}) }}
+
+{{ forms.colorField({
+    label: 'Primary Color'|t('chatflow'),
+    instructions: 'Used for solid color or as first color in gradient'|t('chatflow'),
+    id: 'primaryColor',
+    name: 'primaryColor',
+    value: settings.primaryColor
+}) }}
+
+<div id="avatar-type-gradient" class="{% if settings.avatarType != 'gradient' %}hidden{% endif %}">
+    {{ forms.colorField({
+        label: 'Secondary Color'|t('chatflow'),
+        instructions: 'Second color for gradient'|t('chatflow'),
+        id: 'secondaryColor',
+        name: 'secondaryColor',
+        value: settings.secondaryColor
+    }) }}
+</div>
+
+<div id="avatar-type-solid" class="{% if settings.avatarType not in ['solid', 'gradient'] %}hidden{% endif %}" style="margin-top: 24px;">
+    {{ forms.textField({
+        label: 'Initials'|t('chatflow'),
+        instructions: 'Two characters to display in the avatar'|t('chatflow'),
+        id: 'initials',
+        name: 'initials',
+        value: settings.initials,
+        maxlength: 2
+    }) }}
+</div>
+
+<div id="avatar-type-image" class="{% if settings.avatarType != 'image' %}hidden{% endif %}">
+    {{ forms.elementSelectField({
+        label: 'Avatar Image'|t('chatflow'),
+        instructions: 'Select an image to use as the chat avatar'|t('chatflow'),
+        id: 'avatarImage',
+        name: 'avatarImage',
+        elementType: 'craft\\elements\\Asset',
+        selectionLabel: 'Choose Image'|t('chatflow'),
+        limit: 1,
+        elements: settings.avatarImage ? [craft.assets.id(settings.avatarImage).one()]
+    }) }}
+</div>
+
+<hr>
+
+<h2>{{ "Notifications"|t('chatflow') }}</h2>
+
+{{ forms.lightswitchField({
+    label: 'Enable Email Notifications'|t('chatflow'),
+    instructions: 'Send email notifications for new submissions'|t('chatflow'),
+    id: 'enableEmailNotifications',
+    name: 'enableEmailNotifications',
+    on: settings.enableEmailNotifications,
+    toggle: 'email-settings'
+}) }}
+
+<div id="email-settings" class="{% if not settings.enableEmailNotifications %}hidden{% endif %}">
+    {{ forms.textField({
+        label: 'Default Notification Email'|t('chatflow'),
+        instructions: 'Primary email address for form notifications'|t('chatflow'),
+        id: 'defaultNotificationEmail',
+        name: 'defaultNotificationEmail',
+        value: settings.defaultNotificationEmail,
+        type: 'email',
+        placeholder: 'notifications@example.com'
+    }) }}
+
+    {{ forms.textareaField({
+        label: 'Additional Notification Emails'|t('chatflow'),
+        instructions: 'Additional email addresses (one per line or comma-separated)'|t('chatflow'),
+        id: 'notificationEmails',
+        name: 'notificationEmails',
+        value: settings.notificationEmails,
+        rows: 3,
+        placeholder: 'team@example.com, manager@example.com'
+    }) }}
+</div>
+
+<hr>
+
+<h2>{{ "Integrations"|t('chatflow') }}</h2>
+
+{{ forms.lightswitchField({
+    label: 'Enable Slack Notifications'|t('chatflow'),
+    instructions: 'Send notifications to a Slack channel'|t('chatflow'),
+    id: 'enableSlack',
+    name: 'enableSlack',
+    on: settings.enableSlack,
+    toggle: 'slack-settings'
+}) }}
+
+<div id="slack-settings" class="{% if not settings.enableSlack %}hidden{% endif %}">
+    {{ forms.textField({
+        label: 'Slack Webhook URL'|t('chatflow'),
+        instructions: 'Get your webhook URL from Slack Incoming Webhooks'|t('chatflow'),
+        id: 'slackWebhookUrl',
+        name: 'slackWebhookUrl',
+        value: settings.slackWebhookUrl,
+        type: 'url',
+        placeholder: 'https://hooks.slack.com/services/...'
+    }) }}
+</div>
+
+{{ forms.lightswitchField({
+    label: 'Enable Microsoft Teams Notifications'|t('chatflow'),
+    instructions: 'Send notifications to a Microsoft Teams channel'|t('chatflow'),
+    id: 'enableTeams',
+    name: 'enableTeams',
+    on: settings.enableTeams,
+    toggle: 'teams-settings'
+}) }}
+
+<div id="teams-settings" class="{% if not settings.enableTeams %}hidden{% endif %}">
+    {{ forms.textField({
+        label: 'Teams Webhook URL'|t('chatflow'),
+        instructions: 'Get your webhook URL from Teams Incoming Webhook connector'|t('chatflow'),
+        id: 'teamsWebhookUrl',
+        name: 'teamsWebhookUrl',
+        value: settings.teamsWebhookUrl,
+        type: 'url',
+        placeholder: 'https://outlook.office.com/webhook/...'
+    }) }}
+</div>
+
+{{ forms.lightswitchField({
+    label: 'Enable Webhooks'|t('chatflow'),
+    instructions: 'Send submission data to a custom webhook URL'|t('chatflow'),
+    id: 'enableWebhooks',
+    name: 'enableWebhooks',
+    on: settings.enableWebhooks,
+    toggle: 'webhook-settings'
+}) }}
+
+<div id="webhook-settings" class="{% if not settings.enableWebhooks %}hidden{% endif %}">
+    {{ forms.textField({
+        label: 'Webhook URL'|t('chatflow'),
+        instructions: 'POST submissions to this URL (e.g., for Zapier, Make.com)'|t('chatflow'),
+        id: 'webhookUrl',
+        name: 'webhookUrl',
+        value: settings.webhookUrl,
+        type: 'url',
+        placeholder: 'https://hooks.zapier.com/...'
+    }) }}
+</div>

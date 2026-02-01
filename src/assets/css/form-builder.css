@@ -1,0 +1,46 @@
+/**
+ * Form Builder Styles
+ */
+
+/* Override Craft's default preview opacity for matrix blocks */
+.question-item .preview {
+    opacity: 1 !important;
+}
+
+/* Make the title more readable */
+.question-item .preview .title {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Make titlebar clickable */
+.question-item .titlebar {
+    cursor: pointer;
+    user-select: none;
+}
+
+.question-item .titlebar:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Drag and drop styles */
+.question-item.dragging {
+    opacity: 0.4;
+    background-color: #f0f0f0;
+}
+
+.question-item .move {
+    cursor: move;
+    cursor: grab;
+}
+
+.question-item .move:active {
+    cursor: grabbing;
+}
+
+.question-placeholder {
+    background-color: #e3f2fd;
+    border: 2px dashed #2196f3;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}

@@ -1,0 +1,123 @@
+{#
+    ChatFlow Modal Component
+
+    Usage:
+    {% include 'chatflow/_modal' with {
+        formHandle: 'appointment-form',
+        triggerId: 'ctaButton'
+    } %}
+#}
+
+{% do view.registerAssetBundle("totalwebcreations\\chatflow\\assetbundles\\ChatFlowAsset") %}
+
+{% set form = craft.chatflow.form(formHandle) %}
+{% set settings = craft.app.plugins.getPlugin('chatflow').settings %}
+
+{% if not form %}
+    <!-- ChatFlow form "{{ formHandle }}" not found -->
+    {% exit %}
+{% endif %}
+
+{# ChatFlow Modal - Standalone (no Tailwind required) #}
+<div id="chatflow-modal-{{ form.handle }}" class="chatflow-modal hidden" style="{{ settings.getCssVariables() }}">
+    {# Backdrop #}
+    <div class="chatflow-backdrop opacity-0"></div>
+
+    {# Modal Content #}
+    <div class="chatflow-content translate-x-full">
+        <div>
+            {# Header #}
+            <div class="chatflow-header">
+                <div>
+                    <div class="chatflow-avatar" style="{{ settings.getAvatarBackgroundStyle() }}">
+                        {% if settings.showInitials() %}
+                            <span style="color: {{ settings.getInitialsColor() }}; font-weight: 600; font-size: 16px;">{{ settings.initials }}</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h2>{{ form.name }}</h2>
+                        <p>{{ 'Usually online'|t('chatflow') }}</p>
+                    </div>
+                </div>
+
+                <button type="button" class="chatflow-close">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            {# Progress indicator #}
+            <div class="chatflow-progress-container">
+                <div>
+                    <span class="chatflow-progress">{{ 'Step {current} of {total}'|t('chatflow', {current: 1, total: form.questions|length}) }}</span>
+                    <div class="chatflow-progress-bars">
+                        {% for question in form.questions %}
+                            <div class="chatflow-progress-bar {% if loop.first %}bg-purple{% else %}bg-zinc-200{% endif %}"></div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# Chat Messages Area #}
+            <div class="chatflow-messages">
+                {# Messages will be added here dynamically #}
+            </div>
+
+            {# Input Area #}
+            <div class="chatflow-input-area hidden">
+                {# Text input (for text, email, tel, textarea) #}
+                <div class="chatflow-text-input hidden">
+                    <form class="chatflow-text-form">
+                        <input
+                            type="text"
+                            class="chatflow-input"
+                            placeholder="{{ 'Type your answer...'|t('chatflow') }}"
+                        />
+                        <button type="submit">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+
+                {# Quick reply buttons (for buttons, date) #}
+                <div class="chatflow-quick-replies hidden">
+                    <div class="chatflow-buttons">
+                        {# Buttons will be added here dynamically #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Initialize ChatFlow #}
+<script>
+// Set Craft CSRF token for frontend
+window.Craft = window.Craft || {};
+window.Craft.csrfTokenName = {{ craft.app.config.general.csrfTokenName|json_encode|raw }};
+window.Craft.csrfTokenValue = {{ craft.app.request.csrfToken|json_encode|raw }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    new ChatFlow({
+        modalId: 'chatflow-modal-{{ form.handle }}',
+        formHandle: '{{ form.handle }}',
+        triggerId: '{{ triggerId }}',
+        questions: {{ form.questions|json_encode|raw }},
+        successMessage: {{ form.successMessage|json_encode|raw }},
+        avatarStyle: {{ settings.getAvatarBackgroundStyle()|json_encode|raw }},
+        showInitials: {{ settings.showInitials() ? 'true' : 'false' }},
+        initials: {{ settings.initials|json_encode|raw }},
+        initialsColor: {{ settings.getInitialsColor()|json_encode|raw }},
+        translations: {
+            stepProgress: {{ 'Step {current} of {total}'|t('chatflow')|json_encode|raw }},
+            typeAnswer: {{ 'Type your answer...'|t('chatflow')|json_encode|raw }},
+            skipQuestion: {{ 'Skip this question'|t('chatflow')|json_encode|raw }},
+            errorGeneric: {{ 'Something went wrong. Please try again later.'|t('chatflow')|json_encode|raw }},
+            errorNetwork: {{ 'An error occurred. Please try again later.'|t('chatflow')|json_encode|raw }}
+        }
+    });
+});
+</script>

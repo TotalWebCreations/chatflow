@@ -1,0 +1,41 @@
+{
+    "name": "totalwebcreations/chatflow",
+    "description": "Conversational form builder with WhatsApp-like interface for Craft CMS",
+    "type": "craft-plugin",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "TotalWebCreations",
+            "homepage": "https://totalwebcreations.nl"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "craftcms/cms": "^5.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "totalwebcreations\\chatflow\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "chatflow",
+        "name": "ChatFlow",
+        "description": "Create engaging conversational forms with a WhatsApp-like chat interface. Features multi-channel notifications (Email, Slack, Teams, Webhooks) and supports 5 languages out of the box.",
+        "developer": "TotalWebCreations",
+        "developerUrl": "https://totalwebcreations.nl",
+        "documentationUrl": "https://github.com/TotalWebCreations/chatflow/blob/main/README.md",
+        "changelogUrl": "https://github.com/TotalWebCreations/chatflow/blob/main/CHANGELOG.md",
+        "class": "totalwebcreations\\chatflow\\Plugin",
+        "hasCpSection": true,
+        "hasCpSettings": true,
+        "components": {
+            "forms": "totalwebcreations\\chatflow\\services\\FormsService",
+            "questions": "totalwebcreations\\chatflow\\services\\QuestionsService",
+            "submissions": "totalwebcreations\\chatflow\\services\\SubmissionsService",
+            "mail": "totalwebcreations\\chatflow\\services\\MailService",
+            "notifications": "totalwebcreations\\chatflow\\services\\NotificationService"
+        }
+    }
+}
