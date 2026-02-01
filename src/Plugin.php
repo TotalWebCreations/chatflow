@@ -15,6 +15,7 @@ use totalwebcreations\chatflow\services\QuestionsService;
 use totalwebcreations\chatflow\services\SubmissionsService;
 use totalwebcreations\chatflow\services\MailService;
 use totalwebcreations\chatflow\services\NotificationService;
+use totalwebcreations\chatflow\services\SpamProtectionService;
 use totalwebcreations\chatflow\variables\ChatFlowVariable;
 use yii\base\Event;
 
@@ -31,6 +32,7 @@ use yii\base\Event;
  * @property-read SubmissionsService $submissions
  * @property-read MailService $mail
  * @property-read NotificationService $notifications
+ * @property-read SpamProtectionService $spamProtection
  */
 class Plugin extends BasePlugin
 {
@@ -47,6 +49,7 @@ class Plugin extends BasePlugin
                 'submissions' => SubmissionsService::class,
                 'mail' => MailService::class,
                 'notifications' => NotificationService::class,
+                'spamProtection' => SpamProtectionService::class,
             ],
         ];
     }

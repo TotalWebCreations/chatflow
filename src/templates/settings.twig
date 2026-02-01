@@ -160,3 +160,78 @@
         placeholder: 'https://hooks.zapier.com/...'
     }) }}
 </div>
+
+<hr>
+
+<h2>{{ "Spam Protection"|t('chatflow') }}</h2>
+
+{{ forms.lightswitchField({
+    label: 'Enable Spam Protection'|t('chatflow'),
+    instructions: 'Protect forms with honeypot, time-based validation, and rate limiting'|t('chatflow'),
+    id: 'enableSpamProtection',
+    name: 'enableSpamProtection',
+    on: settings.enableSpamProtection,
+    toggle: 'spam-settings'
+}) }}
+
+<div id="spam-settings" class="{% if not settings.enableSpamProtection %}hidden{% endif %}">
+    <h3>{{ "Time-Based Validation"|t('chatflow') }}</h3>
+
+    {{ forms.textField({
+        label: 'Minimum Submission Time (seconds)'|t('chatflow'),
+        instructions: 'Forms submitted faster than this are likely bots (recommended: 2-5 seconds)'|t('chatflow'),
+        id: 'minSubmissionTime',
+        name: 'minSubmissionTime',
+        value: settings.minSubmissionTime,
+        type: 'number',
+        min: 1,
+        size: 10
+    }) }}
+
+    {{ forms.textField({
+        label: 'Maximum Submission Time (seconds)'|t('chatflow'),
+        instructions: 'Forms taking longer than this will expire (recommended: 1800 = 30 minutes)'|t('chatflow'),
+        id: 'maxSubmissionTime',
+        name: 'maxSubmissionTime',
+        value: settings.maxSubmissionTime,
+        type: 'number',
+        min: 60,
+        size: 10
+    }) }}
+
+    <h3>{{ "Rate Limiting"|t('chatflow') }}</h3>
+
+    {{ forms.textField({
+        label: 'Max Submissions'|t('chatflow'),
+        instructions: 'Maximum number of submissions allowed per IP address within the time window'|t('chatflow'),
+        id: 'rateLimitMaxSubmissions',
+        name: 'rateLimitMaxSubmissions',
+        value: settings.rateLimitMaxSubmissions,
+        type: 'number',
+        min: 1,
+        size: 10
+    }) }}
+
+    {{ forms.textField({
+        label: 'Rate Limit Time Window (seconds)'|t('chatflow'),
+        instructions: 'Time window for rate limiting (recommended: 600 = 10 minutes)'|t('chatflow'),
+        id: 'rateLimitTimeWindow',
+        name: 'rateLimitTimeWindow',
+        value: settings.rateLimitTimeWindow,
+        type: 'number',
+        min: 60,
+        size: 10
+    }) }}
+
+    <div class="readable">
+        <blockquote class="note">
+            <p><strong>{{ "How Spam Protection Works"|t('chatflow') }}</strong></p>
+            <ul>
+                <li><strong>{{ "Honeypot"|t('chatflow') }}:</strong> {{ "Hidden field that bots fill but humans cannot see"|t('chatflow') }}</li>
+                <li><strong>{{ "Time Validation"|t('chatflow') }}:</strong> {{ "Submissions too fast (bots) or too slow (expired) are rejected"|t('chatflow') }}</li>
+                <li><strong>{{ "JavaScript Check"|t('chatflow') }}:</strong> {{ "Requires JavaScript to generate a token (ChatFlow needs JS anyway)"|t('chatflow') }}</li>
+                <li><strong>{{ "Rate Limiting"|t('chatflow') }}:</strong> {{ "Prevents spam floods from the same IP address"|t('chatflow') }}</li>
+            </ul>
+        </blockquote>
+    </div>
+</div>

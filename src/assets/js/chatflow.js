@@ -97,6 +97,31 @@ class ChatFlow {
     }
   }
 
+  /**
+   * Initialize spam protection fields
+   * - Timestamp: when form was opened
+   * - Token: JavaScript-generated token
+   * - Honeypot: will remain empty (hidden field)
+   */
+  initSpamProtection() {
+    // Current timestamp (Unix time)
+    this.spamTimestamp = Math.floor(Date.now() / 1000);
+
+    // Generate random token
+    this.spamToken = this.generateToken();
+
+    // Honeypot will be empty by default (added in submission)
+  }
+
+  /**
+   * Generate random token for spam protection
+   */
+  generateToken() {
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+
   open() {
     // Reset state
     this.currentStep = 0;
@@ -104,6 +129,9 @@ class ChatFlow {
     this.isProcessing = false;
     this.chatMessages.innerHTML = '';
     this.chatInputArea.classList.add('hidden');
+
+    // Initialize spam protection fields
+    this.initSpamProtection();
 
     // Show modal
     this.modal.classList.remove('hidden');
@@ -380,6 +408,14 @@ class ChatFlow {
     this.hideTypingIndicator();
 
     try {
+      // Prepare submission data with spam protection fields
+      const submissionData = {
+        ...this.userData,
+        _chatflow_website: '', // Honeypot (should remain empty)
+        _chatflow_timestamp: this.spamTimestamp,
+        _chatflow_token: this.spamToken
+      };
+
       // Submit to server
       const response = await fetch('/actions/chatflow/submit/submit', {
         method: 'POST',
@@ -389,7 +425,7 @@ class ChatFlow {
         },
         body: JSON.stringify({
           formHandle: this.formHandle,
-          data: this.userData,
+          data: submissionData,
           [window.Craft.csrfTokenName]: window.Craft.csrfTokenValue,
         }),
       });

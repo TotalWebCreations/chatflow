@@ -2,7 +2,7 @@
     "name": "totalwebcreations/chatflow",
     "description": "Conversational form builder with WhatsApp-like interface for Craft CMS",
     "type": "craft-plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "license": "MIT",
     "authors": [
         {

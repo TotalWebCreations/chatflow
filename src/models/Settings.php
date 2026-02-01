@@ -30,15 +30,27 @@ class Settings extends Model
     public string $initials = 'CF'; // Default initials for ChatFlow
     public int|array|null $avatarImage = null; // Asset ID for custom image (array from form, int when saved)
 
+    // Spam Protection settings
+    public bool $enableSpamProtection = true; // Enable Tier 1 spam protection
+    public int $minSubmissionTime = 2; // Minimum time in seconds (too fast = bot)
+    public int $maxSubmissionTime = 1800; // Maximum time in seconds (30 minutes = session timeout)
+    public int $rateLimitMaxSubmissions = 3; // Max submissions per time window
+    public int $rateLimitTimeWindow = 600; // Time window in seconds (10 minutes)
+
     public function defineRules(): array
     {
         return [
             [['defaultNotificationEmail'], 'email'],
             [['notificationEmails'], 'string'],
             [['webhookUrl', 'slackWebhookUrl', 'teamsWebhookUrl'], 'url'],
-            [['enableWebhooks', 'enableEmailNotifications', 'enableSlack', 'enableTeams'], 'boolean'],
+            [['enableWebhooks', 'enableEmailNotifications', 'enableSlack', 'enableTeams', 'enableSpamProtection'], 'boolean'],
             [['avatarType', 'primaryColor', 'secondaryColor', 'initials'], 'string'],
             [['avatarImage'], 'safe'],
+            [['minSubmissionTime', 'maxSubmissionTime', 'rateLimitMaxSubmissions', 'rateLimitTimeWindow'], 'integer'],
+            [['minSubmissionTime'], 'number', 'min' => 1],
+            [['maxSubmissionTime'], 'number', 'min' => 60],
+            [['rateLimitMaxSubmissions'], 'number', 'min' => 1],
+            [['rateLimitTimeWindow'], 'number', 'min' => 60],
         ];
     }
 

@@ -40,6 +40,14 @@ A conversational form builder plugin for Craft CMS that transforms traditional f
 - **Fallback Logic**: Automatically falls back to primary site content when translations are missing
 - **Built-in Translations**: Control panel available in English (en), Dutch (nl), German (de), French (fr), and Spanish (es)
 
+### 🛡️ Built-in Spam Protection
+- **Honeypot Fields**: Hidden fields that bots fill but humans cannot see
+- **Time-Based Validation**: Reject submissions that are too fast (bots) or too slow (expired)
+- **JavaScript Validation**: Ensures JavaScript is enabled with token generation
+- **Rate Limiting**: Prevent spam floods with configurable per-IP limits
+- **Zero Dependencies**: No external services required - works out of the box
+- **Fully Configurable**: Enable/disable and adjust all thresholds from settings
+
 ### 🔧 Developer-Friendly
 - **Simple Template Tag**: Render forms with a single Twig tag
 - **Headless API**: Submit forms via AJAX for custom integrations
@@ -111,30 +119,32 @@ Each question supports:
 
 ### Rendering a Form
 
-In your Twig template:
+First, create your trigger button with a unique ID:
 
 ```twig
-{{ craft.chatflow.render('formHandle') }}
-```
-
-Replace `formHandle` with your form's handle.
-
-### Custom Trigger Button
-
-Create your own trigger button:
-
-```twig
-<button
-    data-chatflow="formHandle"
-    data-chatflow-trigger
-    class="my-custom-button"
->
-    Start Chat
+<button id="contactButton" class="my-custom-button">
+    Get in Touch
 </button>
-
-{# Load ChatFlow assets #}
-{{ craft.chatflow.assets('formHandle') }}
 ```
+
+Then, render the ChatFlow modal and connect it to your button:
+
+```twig
+{{ craft.chatflow.modal('contactForm', 'contactButton') }}
+```
+
+Replace `contactForm` with your form's handle and `contactButton` with your button's ID.
+
+**Complete Example:**
+```twig
+<a id="ctaButton" class="btn btn-primary">
+    Start Chat
+</a>
+
+{{ craft.chatflow.modal('contactForm', 'ctaButton') }}
+```
+
+The modal will automatically open when the user clicks the element with the specified ID.
 
 ### Headless/AJAX Integration
 
@@ -181,6 +191,21 @@ Navigate to **Settings** → **Plugins** → **ChatFlow** to configure:
 - **Slack Webhook URL**: Default Slack webhook for all forms
 - **Teams Webhook URL**: Default Microsoft Teams webhook
 - **Custom Webhook URL**: Default custom webhook endpoint
+
+#### Spam Protection
+- **Enable Spam Protection**: Toggle spam protection on/off (enabled by default)
+- **Minimum Submission Time**: Reject submissions faster than this (default: 2 seconds)
+- **Maximum Submission Time**: Reject submissions slower than this (default: 1800 seconds / 30 minutes)
+- **Max Submissions**: Maximum submissions per IP within time window (default: 3)
+- **Rate Limit Time Window**: Time window for rate limiting (default: 600 seconds / 10 minutes)
+
+**How it works:**
+- **Honeypot**: Hidden field (`_chatflow_website`) that legitimate users won't see, but bots will fill
+- **Time Validation**: Too fast = bot, too slow = expired session
+- **JavaScript Token**: Ensures JavaScript is enabled (ChatFlow requires JS anyway)
+- **Rate Limiting**: Prevents spam floods from the same IP using Craft's cache system
+
+All spam protection runs automatically when enabled. Failed spam checks are logged to `storage/logs/web.log` for monitoring.
 
 ### Form-Level Notifications
 

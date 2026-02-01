@@ -36,6 +36,18 @@ class SubmitController extends Controller
             ]);
         }
 
+        // Spam protection check
+        $ipAddress = $request->getUserIP();
+        $spamCheck = Plugin::getInstance()->spamProtection->validateSubmission($data, $ipAddress);
+
+        if (!$spamCheck['valid']) {
+            Craft::warning("Spam detected for form '{$formHandle}' from IP {$ipAddress}: {$spamCheck['error']}", 'chatflow');
+            return $this->asJson([
+                'success' => false,
+                'message' => $spamCheck['error'],
+            ]);
+        }
+
         // Validate data
         $errors = $this->validateSubmission($form, $data);
         if (!empty($errors)) {

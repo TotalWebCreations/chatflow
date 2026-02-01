@@ -69,6 +69,15 @@
                 {# Text input (for text, email, tel, textarea) #}
                 <div class="chatflow-text-input hidden">
                     <form class="chatflow-text-form">
+                        {# Honeypot field - hidden from users, bots will fill it #}
+                        <input
+                            type="text"
+                            name="_chatflow_website"
+                            autocomplete="off"
+                            tabindex="-1"
+                            style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;"
+                            aria-hidden="true"
+                        />
                         <input
                             type="text"
                             class="chatflow-input"

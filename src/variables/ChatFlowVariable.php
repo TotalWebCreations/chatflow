@@ -5,6 +5,7 @@ namespace totalwebcreations\chatflow\variables;
 use Craft;
 use totalwebcreations\chatflow\Plugin;
 use craft\web\View;
+use Twig\Markup;
 
 /**
  * ChatFlow template variable
@@ -39,7 +40,7 @@ class ChatFlowVariable
     /**
      * Render modal template
      */
-    public function modal(string $formHandle, string $triggerId): string
+    public function modal(string $formHandle, string $triggerId): Markup
     {
         $plugin = Plugin::getInstance();
         $view = Craft::$app->view;
@@ -59,6 +60,7 @@ class ChatFlowVariable
         // Restore original template mode
         $view->setTemplateMode($oldTemplateMode);
 
-        return $html;
+        // Return as Twig Markup so it doesn't need |raw filter
+        return new Markup($html, 'UTF-8');
     }
 }
