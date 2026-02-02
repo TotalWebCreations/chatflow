@@ -5,12 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.0.2] - 2026-02-02
+## 1.0.3 - 2026-02-02
+
+### Fixed
+- CHANGELOG format alignment with Craft Plugin Store requirements
+
+## 1.0.2 - 2026-02-02
 
 ### Fixed
 - Version tag alignment for Craft Plugin Store compatibility
 
-## [v1.0.1] - 2026-02-01
+## 1.0.1 - 2026-02-01
 
 ### Added
 - Built-in spam protection:
@@ -23,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Failed spam attempts logged to Craft logs
   - Enabled by default with sensible defaults
 
-## [v1.0.0] - 2026-02-01
+## 1.0.0 - 2026-02-01
 
 ### Added
 - Initial release of ChatFlow
@@ -82,9 +87,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Uses Craft's native Guzzle HTTP client for webhooks
 - Implements proper database migrations for easy installation
 - Clean MVC architecture with dedicated services layer
-
----
-
-[v1.0.2]: https://github.com/TotalWebCreations/chatflow/releases/tag/v1.0.2
-[v1.0.1]: https://github.com/TotalWebCreations/chatflow/releases/tag/v1.0.1
-[v1.0.0]: https://github.com/TotalWebCreations/chatflow/releases/tag/v1.0.0
